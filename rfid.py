@@ -12,7 +12,7 @@ def start_system():
     
     my_reader = found_reader[0]
     print(f"System is ready, connected to: {my_reader}")
-    print("/nWaiting for card...(press ctrl + c to shutdown)")
+    print("\nWaiting for card...(press ctrl + c to shutdown)")
 
     # hexcode
     # 0xFF = connects vid the cardreader
@@ -38,6 +38,7 @@ def start_system():
 
                 time.sleep(2)
                 print("Awaiting next card...")
+                
         
         except Exception:
             # if no card connect then the connection will crasch
