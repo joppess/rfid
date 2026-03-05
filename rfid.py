@@ -38,12 +38,17 @@ def start_system():
 
                 time.sleep(2)
                 print("Awaiting next card...")
+
+            connection.disconnect()
                 
-        
         except Exception:
             # if no card connect then the connection will crasch
             # then we catch the exception here
             time.sleep(0.5)
+
+        except Exception as e:
+            print(f"error occured: {e}")
+            time.sleep(1)
 
 if __name__ == "__main__": # start read the code here
     start_system()
