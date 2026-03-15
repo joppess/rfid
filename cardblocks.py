@@ -1,6 +1,7 @@
 from smartcard.System import readers
 from smartcard.Exceptions import NoCardException
 import time
+from smartcard.util import toHexString
 
 def explore_card():
     found_reader = readers()
@@ -45,6 +46,7 @@ def explore_card():
 
             if status_word_1 == 144:
                 print("[!] SUCCESS! Sektor 1 unlocked. We got access to memory.")
+                #HÄR LÄGGER VI TILL KODEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             else:
                 # Om kortet har bytt nyckel från standard får vi ett fel (t.ex. 99)
                 print(f"[-] Rejected. Card is using another key. (Errorcode: {status_word_1})")
