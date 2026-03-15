@@ -11,7 +11,7 @@ def explore_card():
     
     reader = found_reader[0]
     print(f" Connected to {reader}")
-    print("\nShow card to try unlock sektor 1 (block 4)...")
+    print("\nShow card to scan all blocks 0 to 63")
 
     # APDU 1: Ladda in vår "Master Key" (Standardnyckeln) i läsarens minne
     # 0xFF, 0x82 = Kommandot för att ladda en nyckel
@@ -25,7 +25,6 @@ def explore_card():
     # 0x04 = Vilket block vi vill låsa upp (Block 4 är början på Sektor 1)
     # 0x60 = Vi vill logga in med "Nyckel A" (Standard för att läsa data)
     # 0x00 = Hämta nyckeln från minnesplats 0 i läsaren
-    auth_cmd = [0xFF, 0x86, 0x00, 0x00, 0x05, 0x01, 0x00, 0x04, 0x60, 0x00]
 
     while True:
         try:
@@ -37,24 +36,42 @@ def explore_card():
 
             # 144 = success is decimal for 0x90
             if status_word_1 == 144:
-                print("\n[+] Standardkey loaded in reader.")
+                print("\n[+] Standardkey loaded in reader. begin to dump memory...\n")
+                print("Block | Rådata (Hex)                                  | Text")
+                print("-" * 75)
+
             else:
                 print("\n[-] Reader refused to take the key.")
+            
+            for block in range(64):
 
-            # try to unlock block 4
-            data, status_word_1, status_word_2 = connection.transmit(auth_cmd)
+                auth_cmd = [0xFF, 0x86, 0x00, 0x00, 0x05, 0x01, 0x00, block, 0x60, 0x00]
+                data, auth_sw1, auth_sw2 = 
+                #----------------------------------------------fyll på
 
-            if status_word_1 == 144:
-                print("[!] SUCCESS! Sektor 1 unlocked. We got access to memory.")
-                #HÄR LÄGGER VI TILL KODEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            else:
-                # Om kortet har bytt nyckel från standard får vi ett fel (t.ex. 99)
-                print(f"[-] Rejected. Card is using another key. (Errorcode: {status_word_1})")
 
-            time.sleep(3)
-            print("\nwaiting for next card...")
+                read_cmd = [0xFF, 0xB0, 0x00, 0x04, 0x10]
+                data, read_sw1, read_sw2 = connection.transmit(read_cmd)
 
-            connection.disconnect()
+                if read_sw1 == 144:
+                    print("[!] SUCCESS! Sektor 1 unlocked. We got access to memory.")
+                    
+                    hex_data = toHexString(data) # make it hexcodes
+                    print(f"\n Raw data (hex): {hex_data}")
+                    
+                    # weird symbols will be dots (numbers under 32 or over 126)
+                    text_data = "".join([chr(b) if 32 <= b <= 126 else '.' for b in data])
+                    print(f" Textform: {text_data}")
+
+
+                else:
+                    # Om kortet har bytt nyckel från standard får vi ett fel (t.ex. 99)
+                    print(f"[-] Rejected. Card is using another key. (Errorcode: {status_word_1})")
+
+                time.sleep(3)
+                print("\nwaiting for next card...")
+
+                connection.disconnect()
     
         except NoCardException: # check if card is on reader
             time.sleep(0.5)
